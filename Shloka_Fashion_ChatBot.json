@@ -1,0 +1,666 @@
+{
+  "name": "Shloka_Fashion_ChatBot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1MB3Iya1pNud3Bsd5D1dJdJzIEqfDNGMm",
+          "mode": "list",
+          "cachedResultName": "n8n-RAG",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1MB3Iya1pNud3Bsd5D1dJdJzIEqfDNGMm"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -384
+      ],
+      "id": "dc678202-15d3-44a3-8f32-e0dfa9a79e0d",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "pQfWdTU7qS3h6ZM8",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1JJYClQNuMECgvKKer1pzL_1jEnDxlPWE",
+          "mode": "list",
+          "cachedResultName": "shloka_fashion_knowledge_base.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1JJYClQNuMECgvKKer1pzL_1jEnDxlPWE/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        592,
+        -384
+      ],
+      "id": "7b95f170-a3ca-4d08-a4c1-a411d8c9abcf",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "pQfWdTU7qS3h6ZM8",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file-name",
+                "value": "={{ $('Download file').item.json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        -480
+      ],
+      "id": "82509e4d-d5bd-4eca-8d51-e3c1e85fa25a",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        -144
+      ],
+      "id": "448fcd47-1e48-47c4-a581-46fbe6d5c651",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -128
+      ],
+      "id": "e497dc14-02dd-465d-85ee-a3f9ce2bfd53",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rVEbE5cTtk1Bv1t4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-rag",
+          "mode": "list",
+          "cachedResultName": "n8n-rag"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        -688
+      ],
+      "id": "758654e7-b53c-4403-a601-17612fa5ac86",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "m8wVZbYRXWbuY0SD",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 🟡 PART 1 — KNOWLEDGE PIPELINE\n\n**Purpose:** Automatically ingests PDF documents into a vector database so the AI can search and answer questions from them.\n\n**How it works:**\n- Watches a Google Drive folder for new files\n- Downloads and processes any new PDF\n- Splits it into chunks → converts to vectors → stores in Pinecone\n\n**To update knowledge:** Just upload a new PDF to the Google Drive folder. Everything else is automatic.",
+        "height": 1020,
+        "width": 2540,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        -896
+      ],
+      "id": "716c200b-61f3-44b0-998d-5e47e5b2fcc3",
+      "name": "Sticky Note — Knowledge Section Header"
+    },
+    {
+      "parameters": {
+        "content": "## 📁 Google Drive Trigger\n\n**What it does:**\nWatches the `n8n-RAG` folder on Google Drive and fires automatically when a new file is uploaded.\n\n**Settings:**\n- 🕐 Polls every 1 minute\n- 📂 Watches folder: `n8n-RAG`\n- ⚡ Event: File Created only\n\n**To customise:**\nChange the folder ID to point to your own Google Drive folder.",
+        "height": 340,
+        "width": 556,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -512
+      ],
+      "id": "f4a0e581-3581-4053-a318-6e6698300939",
+      "name": "Sticky Note — Google Drive Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## ⬇️ Download File\n\n**What it does:**\nDownloads the PDF file from Google Drive as raw binary data so it can be processed.\n\n**Settings:**\n- 📄 File: `shloka_fashion_knowledge_base.pdf`\n- 📦 Output: Binary data\n\n**To customise:**\nReplace the File ID with your own PDF's Google Drive file ID.",
+        "height": 352,
+        "width": 600,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -512
+      ],
+      "id": "473bedc7-e1c3-40ff-8c32-3ede0963ee98",
+      "name": "Sticky Note — Download File"
+    },
+    {
+      "parameters": {
+        "content": "## 🔢 Embeddings Google Gemini\n*(Ingestion Side)*\n\n**What it does:**\nConverts each text chunk into a numerical vector that captures the meaning of the text.\n\n**Settings:**\n- 🧠 Model: `gemini-embedding-001`\n\n**Important:**\nThis MUST use the same model as the retrieval side embeddings. Mixing models will break search accuracy.",
+        "height": 324,
+        "width": 568,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -240
+      ],
+      "id": "f3f78dce-8fa6-4818-93cb-9be4f535e4ef",
+      "name": "Sticky Note — Embeddings Ingest"
+    },
+    {
+      "parameters": {
+        "content": "## 🗃️ Pinecone Vector Store\n*(Insert Mode)*\n\n**What it does:**\nStores all the text vectors permanently in Pinecone. This is the long-term memory of the bot.\n\n**Settings:**\n- 📥 Mode: Insert\n- 🗂️ Index: `n8n-rag`\n\n**Important:**\nCreate this index in your Pinecone account first before running. Make sure dimensions match your embedding model.",
+        "height": 350,
+        "width": 620,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -832
+      ],
+      "id": "c3bc48fc-024e-4179-a58e-89a8102352cc",
+      "name": "Sticky Note — Pinecone Insert"
+    },
+    {
+      "parameters": {
+        "content": "## 📄 Default Data Loader\n\n**What it does:**\nReads the binary PDF and converts it into plain text that the LangChain pipeline can understand. Also attaches the file name as metadata to every chunk.\n\n**Settings:**\n- 📥 Input: Binary (PDF)\n- 🏷️ Metadata: file-name tag added to each chunk\n- ✂️ Split Mode: Custom (uses Text Splitter below)",
+        "height": 432,
+        "width": 424,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -800
+      ],
+      "id": "9e5e97e6-8a56-4a17-ae93-a3f23fed2966",
+      "name": "Sticky Note — Default Data Loader"
+    },
+    {
+      "parameters": {
+        "content": "## ✂️ Recursive Text Splitter\n\n**What it does:**\nBreaks the full document into smaller overlapping chunks so the AI can search specific parts precisely.\n\n**Settings:**\n- 📏 Chunk size: 500 characters\n- 🔁 Overlap: 200 characters\n\n**Why overlap?**\nOverlap makes sure important context is not lost at the boundary between two chunks.",
+        "height": 362,
+        "width": 568,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -256
+      ],
+      "id": "0a72a80a-b35c-4c1d-b6fe-9eda49e2d95e",
+      "name": "Sticky Note — Text Splitter"
+    },
+    {
+      "parameters": {
+        "content": "## 🟦 PART 2 — USER INTERACTION PIPELINE\n\n**Purpose:** Receives messages from users on Telegram, uses the AI + Pinecone to find the best answer, and sends the reply back.\n\n**How it works:**\n- User sends a message to the Telegram bot\n- AI Agent reads it and searches Pinecone for relevant info\n- Gemini LLM composes a clean, structured answer\n- Bot sends the reply back to that exact user\n\n**Requires:** A public HTTPS URL for the Telegram webhook. Use ngrok for local testing.",
+        "height": 1052,
+        "width": 3404,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        192
+      ],
+      "id": "815a03f6-5e79-4633-a8d2-04bc4c909db2",
+      "name": "Sticky Note — Interaction Section Header"
+    },
+    {
+      "parameters": {
+        "content": "## 📩 Telegram Trigger\n\n**What it does:**\nListens for incoming messages from users on Telegram via webhook. Captures the user's text and their unique Chat ID.\n\n**Settings:**\n- 📬 Update type: message\n- 🔗 Protocol: Webhook (needs HTTPS)\n\n**Important:**\nFor local testing use ngrok:\n`ngrok http 5678`\nThen start n8n with:\n`set WEBHOOK_URL=https://xxx.ngrok-free.app && n8n start`\n\n**Key output:**\n`$json.message.text` → user's message\n`$json.message.chat.id` → user's unique ID",
+        "height": 452,
+        "width": 540,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        480
+      ],
+      "id": "17f19fbb-3441-4271-adab-5a4047fcfa70",
+      "name": "Sticky Note — Telegram Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 AI Agent\n\n**What it does:**\nThe brain of the bot. Takes the user's message, decides to search Pinecone for relevant info, and produces a natural language answer.\n\n**Settings:**\n- 📥 Input: `$json.message.text`\n- 🛠️ Tools connected: Pinecone (retrieval)\n- 🧠 LLM: Google Gemini\n- 💾 Memory: Buffer Window\n\n**Output:**\n`$json.output` → the final answer text sent to user",
+        "height": 300,
+        "width": 1112,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        320
+      ],
+      "id": "da157614-855a-4fb3-a979-a98b73c44aa6",
+      "name": "Sticky Note — AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "## 💬 Google Gemini Chat Model\n\n**What it does:**\nThe language model that powers the AI Agent. Reads the retrieved knowledge and writes a clean, friendly answer for the user.\n\n**Settings:**\n- 🤖 Provider: Google Gemini (PaLM API)\n- 🔑 Needs: Google AI Studio API key\n\n**To customise:**\nYou can swap this for OpenAI GPT or any other LLM supported by n8n.",
+        "height": 314,
+        "width": 846,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        816
+      ],
+      "id": "9f58826c-3eee-4c65-be0a-354cf01e4c4e",
+      "name": "Sticky Note — Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "content": "## 🧠 Simple Memory\n\n**What it does:**\n- Remembers previous messages in the same session\n- Each user gets their own separate memory\n- Allows natural follow-up questions to work\n\n---\n\n**Session ID:**\n{{ $json.message.chat.id }}\n- Uses Telegram Chat ID as unique session key\n\n---\n\n**Window Size:**\n- Remembers last N messages only\n- Increase window size for longer memory\n- Decrease to save memory/cost",
+        "height": 424,
+        "width": 574,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        784
+      ],
+      "id": "85978331-dcba-4a5c-8ed6-0d88c4766342",
+      "name": "Sticky Note — Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "## 🔍 Pinecone Vector Store\n*(Retrieve as Tool)*\n\n**What it does:**\nSearches the Pinecone index for the most relevant knowledge chunks based on the user's question. Used by the AI Agent as a tool.\n\n**Settings:**\n- 🔎 Mode: Retrieve as Tool\n- 🗂️ Index: `n8n-rag`\n- 📝 Description: Tells the Agent when to use this tool\n\n**Important:**\nThe Agent auto-decides when to call this. No manual trigger needed.",
+        "height": 344,
+        "width": 728,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        736
+      ],
+      "id": "d124962a-781f-4dc9-a046-a2307e905e18",
+      "name": "Sticky Note — Pinecone Retrieve"
+    },
+    {
+      "parameters": {
+        "content": "## 🔢 Embeddings Google Gemini\n*(Retrieval Side)*\n\n**What it does:**\nConverts the user's question into a vector at query time so it can be compared against stored knowledge vectors in Pinecone.\n\n**Settings:**\n- 🧠 Model: `gemini-embedding-001`\n\n**Important:**\nMUST be the same model used during ingestion. Different models = wrong search results.",
+        "height": 458,
+        "width": 414,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        752
+      ],
+      "id": "283929da-3f0c-4bee-9aca-5e2d94978ab6",
+      "name": "Sticky Note — Embeddings Retrieve"
+    },
+    {
+      "parameters": {
+        "content": "## 📤 Send Message\n\n**What it does:**\nSends the AI's final answer back to the exact Telegram user who asked the question.\n\n**Settings:**\n- 🎯 Chat ID: `$('Telegram Trigger').item.json.message.chat.id`\n- 📝 Text: `$json.output`\n- ✨ Parse Mode: Markdown (bold, lists, italics work in Telegram)\n\n**How Chat ID works:**\nEach Telegram user has a unique ID. This ensures the right person gets the reply even when many users message at the same time.",
+        "height": 450,
+        "width": 706,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        256
+      ],
+      "id": "83eb1892-882b-422b-bc2a-a359fc74f445",
+      "name": "Sticky Note — Send Message"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        624
+      ],
+      "id": "6d7d7374-5e74-4fc3-98a9-357de6e496a4",
+      "name": "Telegram Trigger1",
+      "webhookId": "49519c9e-5a77-4343-8dac-901a2ed3f1b8",
+      "credentials": {
+        "telegramApi": {
+          "id": "407KN3T1KO7YQadD",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        464
+      ],
+      "id": "96dd2644-30cb-4378-b929-109906553e98",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        768,
+        960
+      ],
+      "id": "9da94e94-b056-4d60-bf44-c36a9109dcf5",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rVEbE5cTtk1Bv1t4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        944
+      ],
+      "id": "68c2e490-7f62-4ffb-8d09-f330d80bb405",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "retrieve data when the use asks relevant data about Shloka Fashion services and once the data is retrieved give it in a well structured and simple language in a form of answers.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-rag",
+          "mode": "list",
+          "cachedResultName": "n8n-rag"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        2176,
+        912
+      ],
+      "id": "b86c38de-b76a-44ac-9b7c-e07eea4cf01d",
+      "name": "Pinecone Vector Store2",
+      "credentials": {
+        "pineconeApi": {
+          "id": "m8wVZbYRXWbuY0SD",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        1088
+      ],
+      "id": "0895c100-85f3-4ccb-b894-71e77b3d873a",
+      "name": "Embeddings Google Gemini2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rVEbE5cTtk1Bv1t4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1424,
+        560
+      ],
+      "id": "59710a94-922e-40ea-b77e-8d2e09c74be5",
+      "name": "Send Message",
+      "webhookId": "416d3548-b0c0-4cc9-8080-b0c06006803f",
+      "credentials": {
+        "telegramApi": {
+          "id": "407KN3T1KO7YQadD",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ffd0650-d00d-4bc5-a683-6efa6b6af857",
+  "meta": {
+    "instanceId": "641217f7faee7c131eccc08d10e342cda2a3ec1e68dcc7bf5bc4f4b59150c78a"
+  },
+  "id": "bQOCdCn7aV7Hy7rl",
+  "tags": []
+}
