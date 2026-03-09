@@ -61,7 +61,7 @@ git clone https://github.com/Abhishek88788/Shloka_Fashion_ChatBot.git
 
 1. Import `Shloka_Fashion_ChatBot.json` into n8n
 2. Add credentials — Telegram, Gemini, Pinecone, Google Drive
-3. Create a Pinecone index `n8n-rag` — 768 dimensions, cosine metric
+3. Create a Pinecone index `n8n-rag` — 3072 dimensions, cosine metric
 4. Upload your PDF to a Google Drive folder
 5. Activate the workflow — done
 
