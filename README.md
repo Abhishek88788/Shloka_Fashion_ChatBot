@@ -93,6 +93,6 @@ MIT — use it, modify it, ship it.
 
 Built by <a href="https://github.com/Abhishek88788">@Abhishek88788</a>
 
-Got stuck? Check the full breakdown on LinkedIn → [View Post](#) <!-- replace # with your LinkedIn post link -->
+Got stuck? Check the full breakdown on LinkedIn → [View Post](https://www.linkedin.com/posts/abhishek-nishad-dev_n8n-rag-aiautomation-activity-7436618017435856896-ubMV?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD4OpCkBEjk00gYfn6r6jgkULhVD21_KNtQ)
 
 </div>
