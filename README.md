@@ -86,13 +86,12 @@ Works for any small business with repetitive customer questions.
 ## License
 
 MIT — use it, modify it, ship it.
-<!-- 
-[![Visit](https://img.shields.io/badge/Visit-Click-blue)](https://example.com)
--->
 
 ---
 
 <div align="center">
+
+[![Visit](https://img.shields.io/badge/Visit-Click-blue)](https://example.com)
 
 Built by <a href="https://github.com/Abhishek88788">@Abhishek88788</a>
 
