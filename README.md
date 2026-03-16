@@ -86,6 +86,9 @@ Works for any small business with repetitive customer questions.
 ## License
 
 MIT — use it, modify it, ship it.
+<!-- 
+[![Visit](https://img.shields.io/badge/Visit-Click-blue)](https://example.com)
+-->
 
 ---
 
